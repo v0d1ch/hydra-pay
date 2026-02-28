@@ -18,8 +18,18 @@ with obelisk;
 let
   foldExtensions = lib.foldr lib.composeExtensions (_: _: {});
   deps = obelisk.nixpkgs.thunkSet ./dep;
-  hydra-poc = import deps.hydra-poc {};
-  cardano-node = import deps.cardano-node {};  
+
+  # Hydra 1.2.0 uses Nix flakes, so we use flake-compat to import it
+  # as a traditional Nix expression.
+  flake-compat = import (builtins.fetchTarball {
+    url = "https://github.com/edolstra/flake-compat/archive/5edf11c44bc78a0d334f6334cdaf7d60d732daab.tar.gz";
+    # TODO: Run `nix-prefetch-url --unpack https://github.com/edolstra/flake-compat/archive/5edf11c44bc78a0d334f6334cdaf7d60d732daab.tar.gz`
+    # and replace this placeholder with the correct sha256 hash.
+    sha256 = "0000000000000000000000000000000000000000000000000000";
+  });
+  hydra = (flake-compat { src = deps.hydra; }).defaultNix;
+
+  cardano-node = import deps.cardano-node {};
 
   pkgs = obelisk.nixpkgs;
   livedoc-devnet-script = pkgs.runCommand "livedoc-devnet-script" { } ''
@@ -44,8 +54,7 @@ let
             librarySystemDepends = (drv.librarySystemDepends or []) ++ [
               cardano-node.cardano-node
               cardano-node.cardano-cli
-              hydra-poc.hsPkgs.hydra-node.components.exes.hydra-node
-              hydra-poc.hsPkgs.hydra-node.components.exes.hydra-tools
+              hydra.packages.${system}.hydra-node
               pkgs.jq
               pkgs.coreutils
               livedoc-devnet-script
