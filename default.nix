@@ -53,6 +53,7 @@ let
               cardano-node.cardano-node
               cardano-node.cardano-cli
               hydra.packages.${system}.hydra-node
+              pkgs.gmp
               pkgs.jq
               pkgs.coreutils
               livedoc-devnet-script
