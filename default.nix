@@ -23,9 +23,7 @@ let
   # as a traditional Nix expression.
   flake-compat = import (builtins.fetchTarball {
     url = "https://github.com/edolstra/flake-compat/archive/5edf11c44bc78a0d334f6334cdaf7d60d732daab.tar.gz";
-    # TODO: Run `nix-prefetch-url --unpack https://github.com/edolstra/flake-compat/archive/5edf11c44bc78a0d334f6334cdaf7d60d732daab.tar.gz`
-    # and replace this placeholder with the correct sha256 hash.
-    sha256 = "0000000000000000000000000000000000000000000000000000";
+    sha256 = "0yqfa6rx8md81bcn4szfp0hjq2f3h9i8zjzhqqyfqdkrj5559nmw";
   });
   hydra = (flake-compat { src = deps.hydra; }).defaultNix;
 
