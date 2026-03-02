@@ -44,6 +44,13 @@ let
       ios.bundleName = "Obelisk Minimal Example";
 
       overrides = foldExtensions [
+        # Ensure libgmp is available for all Haskell package builds
+        # (needed by integer-gmp during TH evaluation and linking)
+        (self: super: {
+          mkDerivation = args: super.mkDerivation (args // {
+            librarySystemDepends = (args.librarySystemDepends or []) ++ [ pkgs.gmp ];
+          });
+        })
         (self: super: {
           reflex-gadt-api = self.callCabal2nix "reflex-gadt-api" deps.reflex-gadt-api {};
           string-interpolate = haskellLib.doJailbreak (haskellLib.dontCheck super.string-interpolate);
@@ -53,7 +60,6 @@ let
               cardano-node.cardano-node
               cardano-node.cardano-cli
               hydra.packages.${system}.hydra-node
-              pkgs.gmp
               pkgs.jq
               pkgs.coreutils
               livedoc-devnet-script
