@@ -58,7 +58,7 @@ let
           });
         })
         (self: super: {
-          reflex-gadt-api = self.callCabal2nix "reflex-gadt-api" deps.reflex-gadt-api {};
+          reflex-gadt-api = haskellLib.doJailbreak (self.callCabal2nix "reflex-gadt-api" deps.reflex-gadt-api {});
           string-interpolate = haskellLib.doJailbreak (haskellLib.dontCheck super.string-interpolate);
 
           backend = haskellLib.overrideCabal super.backend (drv: {
