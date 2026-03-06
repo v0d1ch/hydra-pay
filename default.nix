@@ -44,16 +44,16 @@ let
       ios.bundleName = "Obelisk Minimal Example";
 
       overrides = foldExtensions [
-        # Ensure libgmp is available for all Haskell package builds
-        # (needed by integer-gmp during TH evaluation and linking).
+        # Ensure libgmp and libffi are available for all Haskell package builds
+        # (needed by integer-gmp and GHC runtime during TH evaluation and linking).
         # librarySystemDepends adds gmp to link-time flags, but the
-        # ./Setup binary also needs libgmp.so.10 at runtime, so we
+        # ./Setup binary also needs libgmp.so.10 and libffi.so.8 at runtime, so we
         # export LD_LIBRARY_PATH in postPatch (before compileBuildDriverPhase).
         (self: super: {
           mkDerivation = args: super.mkDerivation (args // {
             librarySystemDepends = (args.librarySystemDepends or []) ++ [ pkgs.gmp ];
             postPatch = (args.postPatch or "") + ''
-              export LD_LIBRARY_PATH=${pkgs.gmp}/lib''${LD_LIBRARY_PATH:+:}''${LD_LIBRARY_PATH:-}
+              export LD_LIBRARY_PATH=${pkgs.gmp}/lib:${pkgs.libffi}/lib''${LD_LIBRARY_PATH:+:}''${LD_LIBRARY_PATH:-}
             '';
           });
         })
