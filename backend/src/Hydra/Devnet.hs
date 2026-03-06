@@ -214,7 +214,7 @@ generateHydraKeys :: (MonadIO m, MonadLog (WithSeverity (Doc ann)) m) => String 
 generateHydraKeys path = do
   (exitCode, output, stderr) <- liftIO $
     readCreateProcessWithExitCode
-    (proc hydraToolsPath [ "gen-hydra-key"
+    (proc hydraNodePath [ "gen-hydra-key"
                          , "--output-file"
                          , [i|#{path}.hydra|]
                          ])

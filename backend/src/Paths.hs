@@ -3,9 +3,6 @@ module Paths where
 
 import System.Which (staticWhich, staticWhichNix)
 
-hydraToolsPath :: FilePath
-hydraToolsPath = $(staticWhich "hydra-tools")
-
 realpathPath :: FilePath
 realpathPath = $(staticWhich "realpath")
 

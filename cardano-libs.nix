@@ -1,7 +1,7 @@
 {
   deps
 , lib
-, hydra-poc
+, hydra-src
 , pkgs ? import <nixpkgs> {}
 }:
 let
@@ -113,17 +113,18 @@ let
   };
 in
 self: super: {
-  # hydra-poc
-  hydra-cluster = self.callCabal2nix "hydra-cluster" (hydra-poc + "/hydra-cluster") {};
-  hydra-node = self.callCabal2nix "hydra-node" (hydra-poc + "/hydra-node") {};
-  hydra-plutus = self.callCabal2nix "hydra-plutus" (hydra-poc + "/hydra-plutus") {};
-  hydra-prelude = self.callCabal2nix "hydra-prelude" (hydra-poc + "/hydra-prelude") {};
-  hydra-test-utils = self.callCabal2nix "hydra-test-utils" (hydra-poc + "/hydra-test-utils") {};
-  hydra-tui = self.callCabal2nix "hydra-tui" (hydra-poc + "/hydra-tui") {};
-  hydra-cardano-api = self.callCabal2nix "hydra-cardano-api" (hydra-poc + "/hydra-cardano-api") {};
-  plutus-cbor = self.callCabal2nix "plutus-cbor" (hydra-poc + "/plutus-cbor") {};
-  plutus-merkle-tree = self.callCabal2nix "plutus-merkle-tree" (hydra-poc + "/plutus-merkle-tree") {};
-  hydraw = self.callCabal2nix "hydraw" (hydra-poc + "/hydraw") {};
+  # cardano-scaling/hydra 1.2.0 packages
+  hydra-cluster = self.callCabal2nix "hydra-cluster" (hydra-src + "/hydra-cluster") {};
+  hydra-node = self.callCabal2nix "hydra-node" (hydra-src + "/hydra-node") {};
+  hydra-plutus = self.callCabal2nix "hydra-plutus" (hydra-src + "/hydra-plutus") {};
+  hydra-prelude = self.callCabal2nix "hydra-prelude" (hydra-src + "/hydra-prelude") {};
+  hydra-test-utils = self.callCabal2nix "hydra-test-utils" (hydra-src + "/hydra-test-utils") {};
+  hydra-tui = self.callCabal2nix "hydra-tui" (hydra-src + "/hydra-tui") {};
+  hydra-cardano-api = self.callCabal2nix "hydra-cardano-api" (hydra-src + "/hydra-cardano-api") {};
+  hydra-tx = self.callCabal2nix "hydra-tx" (hydra-src + "/hydra-tx") {};
+  hydra-chain-observer = self.callCabal2nix "hydra-chain-observer" (hydra-src + "/hydra-chain-observer") {};
+  hydra-plutus-extras = self.callCabal2nix "hydra-plutus-extras" (hydra-src + "/hydra-plutus-extras") {};
+  hydraw = self.callCabal2nix "hydraw" (hydra-src + "/hydraw") {};
 
   # iohk-monitoring-framework
   contra-tracer = self.callCabal2nix "contra-tracer" (iohk-monitoring-framework + "/contra-tracer") {};

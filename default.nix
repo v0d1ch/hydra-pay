@@ -18,8 +18,16 @@ with obelisk;
 let
   foldExtensions = lib.foldr lib.composeExtensions (_: _: {});
   deps = obelisk.nixpkgs.thunkSet ./dep;
-  hydra-poc = import deps.hydra-poc {};
-  cardano-node = import deps.cardano-node {};  
+
+  # Hydra 1.2.0 uses Nix flakes, so we use flake-compat to import it
+  # as a traditional Nix expression.
+  flake-compat = import (builtins.fetchTarball {
+    url = "https://github.com/edolstra/flake-compat/archive/5edf11c44bc78a0d334f6334cdaf7d60d732daab.tar.gz";
+    sha256 = "0yqfa6rx8md81bcn4szfp0hjq2f3h9i8zjzhqqyfqdkrj5559nmw";
+  });
+  hydra = (flake-compat { src = deps.hydra; }).defaultNix;
+
+  cardano-node = import deps.cardano-node {};
 
   pkgs = obelisk.nixpkgs;
   livedoc-devnet-script = pkgs.runCommand "livedoc-devnet-script" { } ''
@@ -36,16 +44,28 @@ let
       ios.bundleName = "Obelisk Minimal Example";
 
       overrides = foldExtensions [
+        # Ensure libgmp and libffi are available for all Haskell package builds
+        # (needed by integer-gmp and GHC runtime during TH evaluation and linking).
+        # librarySystemDepends adds gmp to link-time flags, but the
+        # ./Setup binary also needs libgmp.so.10 and libffi.so.8 at runtime, so we
+        # export LD_LIBRARY_PATH in postPatch (before compileBuildDriverPhase).
         (self: super: {
-          reflex-gadt-api = self.callCabal2nix "reflex-gadt-api" deps.reflex-gadt-api {};
+          mkDerivation = args: super.mkDerivation (args // {
+            librarySystemDepends = (args.librarySystemDepends or []) ++ [ pkgs.gmp ];
+            postPatch = (args.postPatch or "") + ''
+              export LD_LIBRARY_PATH=${pkgs.gmp}/lib:${pkgs.libffi}/lib''${LD_LIBRARY_PATH:+:}''${LD_LIBRARY_PATH:-}
+            '';
+          });
+        })
+        (self: super: {
+          reflex-gadt-api = haskellLib.doJailbreak (self.callCabal2nix "reflex-gadt-api" deps.reflex-gadt-api {});
           string-interpolate = haskellLib.doJailbreak (haskellLib.dontCheck super.string-interpolate);
 
           backend = haskellLib.overrideCabal super.backend (drv: {
             librarySystemDepends = (drv.librarySystemDepends or []) ++ [
               cardano-node.cardano-node
               cardano-node.cardano-cli
-              hydra-poc.hsPkgs.hydra-node.components.exes.hydra-node
-              hydra-poc.hsPkgs.hydra-node.components.exes.hydra-tools
+              hydra.packages.${system}.hydra-node
               pkgs.jq
               pkgs.coreutils
               livedoc-devnet-script
